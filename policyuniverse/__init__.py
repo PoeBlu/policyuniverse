@@ -3,7 +3,7 @@ import os
 import sys
 import logging
 
-_action_categories = dict()
+_action_categories = {}
 all_permissions = set()
 from policyuniverse.action_categories import build_action_categories_from_service_data
 from policyuniverse.action import build_service_actions_from_service_data
@@ -20,7 +20,7 @@ service_data_path = os.path.join(
 
 service_data = json.load(open(service_data_path, "r"))
 
-_action_categories.update(build_action_categories_from_service_data(service_data))
+_action_categories |= build_action_categories_from_service_data(service_data)
 all_permissions.update(build_service_actions_from_service_data(service_data))
 
 # These have been refactored to other files, but

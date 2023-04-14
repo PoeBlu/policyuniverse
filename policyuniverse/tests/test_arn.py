@@ -48,7 +48,7 @@ class ARNTestCase(unittest.TestCase):
 
         # Proper ARN Tests:
         for arn in proper_arns:
-            logger.info("Testing Proper ARN: {}".format(arn))
+            logger.info(f"Testing Proper ARN: {arn}")
             arn_obj = ARN(arn)
 
             self.assertFalse(arn_obj.error)
@@ -72,7 +72,7 @@ class ARNTestCase(unittest.TestCase):
 
         # Improper ARN Tests:
         for arn in bad_arns:
-            logger.info("Testing IMPROPER ARN: {}".format(arn))
+            logger.info(f"Testing IMPROPER ARN: {arn}")
             arn_obj = ARN(arn)
 
             self.assertTrue(arn_obj.error)
@@ -91,14 +91,14 @@ class ARNTestCase(unittest.TestCase):
 
         # Proper account number tests:
         for accnt in proper_account_numbers:
-            logger.info("Testing Proper Account Number: {}".format(accnt))
+            logger.info(f"Testing Proper Account Number: {accnt}")
             arn_obj = ARN(accnt)
 
             self.assertFalse(arn_obj.error)
 
         # Improper account number tests:
         for accnt in improper_account_numbers:
-            logger.info("Testing IMPROPER Account Number: {}".format(accnt))
+            logger.info(f"Testing IMPROPER Account Number: {accnt}")
             arn_obj = ARN(accnt)
 
             self.assertTrue(arn_obj.error)

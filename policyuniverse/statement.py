@@ -67,7 +67,7 @@ class Statement(object):
     @property
     def resources(self):
         if "NotResource" in self.statement:
-            return set(["*"])
+            return {"*"}
 
         resources = self.statement.get("Resource")
         if not isinstance(resources, list):
@@ -98,8 +98,7 @@ class Statement(object):
         for principal in self.principals:
             principal = PrincipalTuple(category="principal", value=principal)
             who.add(principal)
-        who = who.union(self.condition_entries)
-        return who
+        return who.union(self.condition_entries)
 
     def _principals(self):
         """Extracts all principals from IAM statement.
@@ -162,7 +161,7 @@ class Statement(object):
 
         https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html
         """
-        conditions = list()
+        conditions = []
         condition = self.statement.get("Condition")
         if not condition:
             return conditions
@@ -209,12 +208,12 @@ class Statement(object):
 
                     if key.lower() in key_mapping:
                         if isinstance(value, list):
-                            for v in value:
-                                conditions.append(
-                                    ConditionTuple(
-                                        value=v, category=key_mapping[key.lower()]
-                                    )
+                            conditions.extend(
+                                ConditionTuple(
+                                    value=v, category=key_mapping[key.lower()]
                                 )
+                                for v in value
+                            )
                         else:
                             conditions.append(
                                 ConditionTuple(
@@ -253,9 +252,11 @@ class Statement(object):
         return self._condition_field("vpce")
 
     def _condition_field(self, field):
-        return set(
-            [entry.value for entry in self.condition_entries if entry.category == field]
-        )
+        return {
+            entry.value
+            for entry in self.condition_entries
+            if entry.category == field
+        }
 
     def is_internet_accessible(self):
         if self.effect != "Allow":
@@ -267,22 +268,20 @@ class Statement(object):
         if self.uses_not_principal():
             return True
 
-        for principal in self.principals:
-            if self._arn_internet_accessible(principal):
-                return True
-
-        return False
+        return any(
+            self._arn_internet_accessible(principal)
+            for principal in self.principals
+        )
 
     def is_condition_internet_accessible(self):
         condition_entries = self.condition_entries
         if len(condition_entries) == 0:
             return True
 
-        for entry in condition_entries:
-            if self._is_condition_entry_internet_accessible(entry):
-                return True
-
-        return False
+        return any(
+            self._is_condition_entry_internet_accessible(entry)
+            for entry in condition_entries
+        )
 
     def _is_condition_entry_internet_accessible(self, entry):
         if entry.category == "arn":
@@ -305,12 +304,10 @@ class Statement(object):
     def _userid_internet_accessible(self, userid):
         # Trailing wildcards are okay for userids:
         # AROAIIIIIIIIIIIIIIIII:*
-        if userid.index("*") == len(userid) - 1:
-            return False
-        return True
+        return userid.index("*") != len(userid) - 1
 
     def _arn_internet_accessible(self, arn_input):
-        if "*" == arn_input:
+        if arn_input == "*":
             return True
 
         arn = ARN(arn_input)
@@ -330,7 +327,4 @@ class Statement(object):
             )
             return True
 
-        if arn.account_number == "*":
-            return True
-
-        return False
+        return arn.account_number == "*"

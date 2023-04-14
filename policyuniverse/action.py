@@ -27,7 +27,7 @@ def build_service_actions_from_service_data(service_data):
         prefix = service_data[service_name]["prefix"]
         service_actions = service_data[service_name]["actions"]
         for action in service_actions:
-            permissions.add("{}:{}".format(prefix, action.lower()))
+            permissions.add(f"{prefix}:{action.lower()}")
     return permissions
 
 

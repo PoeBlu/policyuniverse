@@ -41,19 +41,17 @@ def translate_aws_action_groups(groups):
         return "Read"
     if "Tagging" in groups:
         return "Tagging"
-    if "ReadWrite" in groups:
-        return "Write"
-    return "Unknown"
+    return "Write" if "ReadWrite" in groups else "Unknown"
 
 
 def build_action_categories_from_service_data(service_data):
-    action_categories = dict()
+    action_categories = {}
     for service_name in service_data:
         service_body = service_data[service_name]
         prefix = service_body["prefix"]
         service_actions = service_body["actions"]
         for service_action, service_action_body in service_actions.items():
-            key = "{}:{}".format(prefix, service_action.lower())
+            key = f"{prefix}:{service_action.lower()}"
             action_categories[key] = service_action_body["calculated_action_group"]
     return action_categories
 
@@ -87,8 +85,8 @@ def actions_for_category(category):
     Returns:
         set of matching actions
     """
-    actions = set()
-    for action, action_category in _action_categories.items():
-        if action_category == category:
-            actions.add(action)
-    return actions
+    return {
+        action
+        for action, action_category in _action_categories.items()
+        if action_category == category
+    }

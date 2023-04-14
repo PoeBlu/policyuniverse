@@ -48,11 +48,11 @@ def _get_prefixes_for_action(action):
     :return: [ "iam:", "iam:c", "iam:ca", "iam:cat" ]
     """
     (technology, permission) = action.split(":")
-    retval = ["{}:".format(technology)]
+    retval = [f"{technology}:"]
     phrase = ""
     for char in permission:
-        newphrase = "{}{}".format(phrase, char)
-        retval.append("{}:{}".format(technology, newphrase))
+        newphrase = f"{phrase}{char}"
+        retval.append(f"{technology}:{newphrase}")
         phrase = newphrase
     return retval
 
@@ -77,10 +77,7 @@ def _expand_wildcard_action(action):
             ]
 
             # if we get a wildcard for a tech we've never heard of, just return the wildcard
-            if not expanded:
-                return [action.lower()]
-
-            return expanded
+            return expanded if expanded else [action.lower()]
         return [action.lower()]
 
 
@@ -91,7 +88,7 @@ def _get_desired_actions_from_statement(statement):
     for action in actions:
         if action not in all_permissions:
             raise Exception(
-                "Desired action not found in master permission list. {}".format(action)
+                f"Desired action not found in master permission list. {action}"
             )
         desired_actions.add(action)
 
@@ -111,9 +108,7 @@ def _get_denied_prefixes_from_desired(desired_actions):
 def _check_min_permission_length(permission, minchars=None):
     if minchars and len(permission) < int(minchars) and permission != "":
         print(
-            "Skipping prefix {} because length of {}".format(
-                permission, len(permission)
-            ),
+            f"Skipping prefix {permission} because length of {len(permission)}",
             file=sys.stderr,
         )
         return True
@@ -131,7 +126,7 @@ def minimize_statement_actions(statement, minchars=None):
 
     for action in desired_actions:
         if action in denied_prefixes:
-            print("Action is a denied prefix. Action: {}".format(action))
+            print(f"Action is a denied prefix. Action: {action}")
             minimized_actions.add(action)
             continue
 
@@ -145,32 +140,28 @@ def minimize_statement_actions(statement, minchars=None):
 
             if prefix not in denied_prefixes:
                 if prefix not in desired_actions:
-                    prefix = "{}*".format(prefix)
+                    prefix = f"{prefix}*"
                 minimized_actions.add(prefix)
                 found_prefix = True
                 break
 
         if not found_prefix:
-            print("Could not suitable prefix. Defaulting to {}".format(prefixes[-1]))
+            print(f"Could not suitable prefix. Defaulting to {prefixes[-1]}")
             minimized_actions.add(prefixes[-1])
 
-    # sort the actions
-    minimized_actions_list = list(minimized_actions)
-    minimized_actions_list.sort()
-
-    return minimized_actions_list
+    return sorted(minimized_actions)
 
 
 def get_actions_from_statement(statement):
     allowed_actions = set()
 
-    if not type(statement.get("Action", [])) == list:
+    if type(statement.get("Action", [])) != list:
         statement["Action"] = [statement["Action"]]
 
     for action in statement.get("Action", []):
         allowed_actions = allowed_actions.union(set(_expand_wildcard_action(action)))
 
-    if not type(statement.get("NotAction", [])) == list:
+    if type(statement.get("NotAction", [])) != list:
         statement["NotAction"] = [statement["NotAction"]]
 
     inverted_actions = set()
@@ -220,5 +211,5 @@ def minimize_policy(policy=None, minchars=None):
     end_size = len(str_end_pol)
 
     # print str_end_pol
-    print("Start size: {}. End size: {}".format(size, end_size), file=sys.stderr)
+    print(f"Start size: {size}. End size: {end_size}", file=sys.stderr)
     return policy

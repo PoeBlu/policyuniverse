@@ -351,22 +351,22 @@ class StatementTestCase(unittest.TestCase):
 
     def test_statement_principals(self):
         statement = Statement(statement02)
-        self.assertEqual(statement.principals, set(["arn:aws:iam::012345678910:root"]))
+        self.assertEqual(statement.principals, {"arn:aws:iam::012345678910:root"})
 
         statement = Statement(statement03)
-        self.assertEqual(statement.principals, set(["arn:aws:iam::012345678910:root"]))
+        self.assertEqual(statement.principals, {"arn:aws:iam::012345678910:root"})
 
         statement = Statement(statement04)
-        self.assertEqual(statement.principals, set(["arn:aws:iam::012345678910:root"]))
+        self.assertEqual(statement.principals, {"arn:aws:iam::012345678910:root"})
 
         statement = Statement(statement05)
         self.assertEqual(
             statement.principals,
-            set(["arn:aws:iam::012345678910:root", "lambda.amazonaws.com"]),
+            {"arn:aws:iam::012345678910:root", "lambda.amazonaws.com"},
         )
 
         statement = Statement(statement06)
-        self.assertEqual(statement.principals, set(["lambda.amazonaws.com"]))
+        self.assertEqual(statement.principals, {"lambda.amazonaws.com"})
 
         statement_wo_principal = dict(statement06)
         del statement_wo_principal["Principal"]
@@ -377,7 +377,7 @@ class StatementTestCase(unittest.TestCase):
         statement = Statement(statement07)
         self.assertEqual(
             statement.condition_arns,
-            set(["arn:aws:iam::012345678910:role/SomeTestRoleForTesting"]),
+            {"arn:aws:iam::012345678910:role/SomeTestRoleForTesting"},
         )
 
         statement = Statement(statement27)
@@ -386,17 +386,15 @@ class StatementTestCase(unittest.TestCase):
         statement = Statement(statement08)
         self.assertEqual(
             statement.condition_arns,
-            set(
-                [
-                    "arn:aws:iam::012345678910:role/SomeTestRoleForTesting",
-                    "arn:aws:iam::012345678910:role/OtherRole",
-                ]
-            ),
+            {
+                "arn:aws:iam::012345678910:role/SomeTestRoleForTesting",
+                "arn:aws:iam::012345678910:role/OtherRole",
+            },
         )
 
         statement = Statement(statement10)
         self.assertEqual(
-            statement.condition_accounts, set(["012345678910", "123456789123"])
+            statement.condition_accounts, {"012345678910", "123456789123"}
         )
 
         statement = Statement(statement28)
@@ -404,36 +402,36 @@ class StatementTestCase(unittest.TestCase):
 
         statement = Statement(statement11)
         self.assertEqual(
-            statement.condition_accounts, set(["012345678910", "123456789123"])
+            statement.condition_accounts, {"012345678910", "123456789123"}
         )
 
         statement = Statement(statement12)
         self.assertEqual(
-            statement.condition_arns, set(["arn:aws:iam::012345678910:role/Admin"])
+            statement.condition_arns, {"arn:aws:iam::012345678910:role/Admin"}
         )
-        self.assertEqual(statement.condition_accounts, set(["012345678910"]))
-        self.assertEqual(statement.condition_userids, set(["AROAI1111111111111111:*"]))
+        self.assertEqual(statement.condition_accounts, {"012345678910"})
+        self.assertEqual(statement.condition_userids, {"AROAI1111111111111111:*"})
         self.assertEqual(
             statement.condition_cidrs,
-            set(["123.45.67.89", "10.0.7.0/24", "172.16.0.0/16"]),
+            {"123.45.67.89", "10.0.7.0/24", "172.16.0.0/16"},
         )
-        self.assertEqual(statement.condition_vpcs, set(["vpc-111111"]))
-        self.assertEqual(statement.condition_vpces, set(["vpce-111111"]))
+        self.assertEqual(statement.condition_vpcs, {"vpc-111111"})
+        self.assertEqual(statement.condition_vpces, {"vpce-111111"})
 
         statement = Statement(statement13)
         self.assertEqual(
-            statement.condition_arns, set(["arn:aws:iam::012345678910:role/Admin"])
+            statement.condition_arns, {"arn:aws:iam::012345678910:role/Admin"}
         )
         self.assertEqual(len(statement.condition_userids), 0)
 
         statement = Statement(statement23)
-        self.assertEqual(statement.condition_accounts, set(["222222222222"]))
+        self.assertEqual(statement.condition_accounts, {"222222222222"})
 
         statement = Statement(statement29)
-        self.assertEqual(statement.condition_orgids, set(["o-xxxxxxxxxx"]))
+        self.assertEqual(statement.condition_orgids, {"o-xxxxxxxxxx"})
 
         statement = Statement(statement30)
-        self.assertEqual(statement.condition_orgids, set(["o-*"]))
+        self.assertEqual(statement.condition_orgids, {"o-*"})
 
     def test_statement_internet_accessible(self):
         self.assertTrue(Statement(statement14).is_internet_accessible())

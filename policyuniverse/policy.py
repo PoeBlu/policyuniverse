@@ -32,8 +32,9 @@ class Policy(object):
         if not isinstance(statement_structure, list):
             statement_structure = [statement_structure]
 
-        for statement in statement_structure:
-            self.statements.append(Statement(statement))
+        self.statements.extend(
+            Statement(statement) for statement in statement_structure
+        )
 
     @property
     def principals(self):
@@ -57,10 +58,7 @@ class Policy(object):
         return action_categories
 
     def is_internet_accessible(self):
-        for statement in self.statements:
-            if statement.is_internet_accessible():
-                return True
-        return False
+        return any(statement.is_internet_accessible() for statement in self.statements)
 
     def internet_accessible_actions(self):
         actions = set()

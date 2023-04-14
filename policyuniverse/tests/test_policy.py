@@ -130,8 +130,8 @@ class PolicyTestCase(unittest.TestCase):
         self.assertTrue(Policy(policy03).is_internet_accessible())
 
     def test_internet_accessible_actions(self):
-        self.assertEqual(Policy(policy01).internet_accessible_actions(), set(["rds:*"]))
-        self.assertEqual(Policy(policy03).internet_accessible_actions(), set(["ec2:*"]))
+        self.assertEqual(Policy(policy01).internet_accessible_actions(), {"rds:*"})
+        self.assertEqual(Policy(policy03).internet_accessible_actions(), {"ec2:*"})
 
     def test_action_summary(self):
         summary = Policy(policy05).action_summary()
@@ -146,7 +146,7 @@ class PolicyTestCase(unittest.TestCase):
     def test_principals(self):
         self.assertEqual(
             Policy(policy04).principals,
-            set(["arn:aws:iam::012345678910:root", "arn:aws:iam::*:role/Hello"]),
+            {"arn:aws:iam::012345678910:root", "arn:aws:iam::*:role/Hello"},
         )
 
     def test_condition_entries(self):
@@ -154,17 +154,15 @@ class PolicyTestCase(unittest.TestCase):
 
         self.assertEqual(
             Policy(policy05).condition_entries,
-            set(
-                [
-                    ConditionTuple(category="cidr", value="0.0.0.0/0"),
-                    ConditionTuple(category="account", value="012345678910"),
-                ]
-            ),
+            {
+                ConditionTuple(category="cidr", value="0.0.0.0/0"),
+                ConditionTuple(category="account", value="012345678910"),
+            },
         )
 
         self.assertEqual(
             Policy(policy06).condition_entries,
-            set([ConditionTuple(category="org-id", value="o-xxxxxxxxxx")]),
+            {ConditionTuple(category="org-id", value="o-xxxxxxxxxx")},
         )
 
     def test_whos_allowed(self):
@@ -173,13 +171,11 @@ class PolicyTestCase(unittest.TestCase):
 
         allowed = Policy(policy04).whos_allowed()
         self.assertEqual(len(allowed), 3)
-        principal_allowed = set(
-            [item for item in allowed if item.category == "principal"]
-        )
+        principal_allowed = {item for item in allowed if item.category == "principal"}
         self.assertEqual(len(principal_allowed), 2)
-        condition_account_allowed = set(
-            [item for item in allowed if item.category == "account"]
-        )
+        condition_account_allowed = {
+            item for item in allowed if item.category == "account"
+        }
         self.assertEqual(len(condition_account_allowed), 1)
 
         allowed = Policy(policy06).whos_allowed()
